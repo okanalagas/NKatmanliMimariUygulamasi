@@ -1,0 +1,115 @@
+﻿NKatmanın amacı daha yönetilebilir bir proje yaratmak boş bir solutiona classlibraryler oluşturulur her bir katman için kullanıcı katmanı isteğe göre windows form yada web olabilir.
+
+Entities katmanı veri tabanında tablo olacak sınıfları tutar Entity framework yuklemeyi unutma manage nugettan
+
+Map katmanı sınıflar tablo olurken ayarlamaları yapacak Verilerin veritabanına nasıl gönderileceği ayarlanır. bazıları bu katmanı açmaz ve bunu dalın içinde yapar. esnek olmasını daha yönetilebilir olmasını istiyorsak açabiliriz bu katmanı da 
+
+DAL (Data Access Layer) Entity Framework ile veritabanına erişim sağlayacak
+
+BLL (Business Logic Layer) İş Mantığı katmanımız olacak.
+
+DAL ile UI ilişkisi kesilir. Güvenlik sebebiyle dalın direkt olarak ui ile iletişime geçmesine izin verilmez
+
+Entities projesine models ve enums klasörleri oluşturulur.
+
+Enums klasörü enum classlarını tutar sadece istenilen seçenekler türünde veri girişi sağlar.
+
+Models klasörü tablo olacak sınıfları tutar.
+
+Birebir ilişki olan classlarda tanımlama yapılır. Bu tanımalamalar ilişki için yetmez map katmanında ekstradan ilgilenmek gerekir.
+
+Bire çok ilişki olan classlarda tanımlama yapılır.
+
+Aynı şekilde çoka çok ilişki olan classlarda da tanımlama yapılır. En sağlıklı şekilde Junction tablo classı ile temsil edilir. Ekstra tanımlamalar map katmanında yapılır.
+
+Map katmanına options klasörü açılır.ve için BaseMap classı açılır. bu map miras vermek için açılır ve amacı ortak sütunların özelliklerini belirlemektir. bu class EntityTypeConfugrtion classından miras alır. 
+
+EntityTypeConfugration aslında generic bir sınıftır ve görevi ayarlamaları yapmaktır.  ama hangi tipe göre işlem yapacağını bilmesi için generic yapı alması gerekir. örneğin producttaki modified date de orderdaki modified date de tablo ismi türkçe görünsün istenebilir. 
+
+İlgili tipler için ayarlama yapacak maplar açılır.
+
+İsim değişikliği isteğe bağlıdır fakat birebir ve çokaçok ilişkilerin 2. fazını tamamlamak gerekiyor.  birebir ilişkide bir tarafın zero bırakılması lazım yoksa veri oluşturamayız. Bu işlem ilgili mapte yapılır. iki classtan birinde yapmak yeterlidir diğerinde yapmaya gerek yok 
+
+Çokaçok ilişki içinde map açılır.  normalde çokaçok sınıfı junction yani ara tablodur bunların kendine has primary keyleri yoktur kompozit keyleri vardır başka sınıflardan gelen  yoktur. Sqle göndermek istemediğimiz propertyler için ignore yazılır.  
+
+Çalışacak katman setasstartup olarak seçilir ve (manage nugetten)entitiy framework yüklenir..ve çalışacak projedeki appconfige database connection stringi yazılır.
+
+DAL  katmanına Context adında bir klasör açılır. ve içine mycontext adında bir class açılır. ve bu class DbContexten kalıtım alır.
+
+DAL katmanının referanslarına entities katmanı ve map katmanı tanınır. ordaki verilere erişebilmesi için
+
+Kaç katman olursa olsun setasstartup olan katmanın appconfigi tanınır. bu sebeple ne iş yapacağını bilmesi için context sınıfına bağlantının ismi yazılır.
+
+ctora connection ismi yazılır.
+
+model yaratırken yapmak istediğimiz işlemler için onmodelcreating override edilir. ilgili maplar tetiklenir.
+
+Tablo olacak classların mycontexte bildirilmesi için dbset tipinde tanımlamalar yapılır.
+
+burdan sonra toolstan packcage manage console açılarak context sınıfının oldugu dal katmanı seçilir.
+
+Enable-migrations -enableautomaticmigrations yazılır  auto yazma sebebimiz değişikleri otomatik alması için 
+
+Update-database yazılır databasenin oluşup oluşmadığı kontrol edilir...
+
+BLL katmanı yazılım sisteminin işlemlerinin gerçekleştirildiği katmandır. BLL UI ile DAL katmanı arasında haberleşme görevi yapar. 
+
+BLL katmanına dal ve entities referansları eklenir. Ve entity framework indirilir.
+
+Bll katmanına design patterns klasörü açılır ve içine generic repository ve singleton pattern klasörleri açılır. Generic Repository içine Base Int ve Conc rep klasörleri açılır.
+
+Singleton klasörüne class oluşturul dbtool isminde 
+
+Interface desteği almak üzere intrep klasörü içine IRepository isminde bir interface açılır.Yalnız bu interface generic bir interface olmak zorunda ve t sine Base Entitiy tipi verilir.
+
+Bunu yapma sebebimiz kafamıza göre bir tip vermek istemiyoruz. IRepository açma sebebimiz veritabanı sınıfında işlem yapacak tüm görevleri toplayabilecek bir depodur.  Ekle Sil Güncelle işlemleri gibi.
+
+IRepository interfacesinde görevlerin yani metotların tanımlaması yapılır.
+
+Metot tanımlamalarından sonra interfacenin metotları implement edilir. Ayrı ayrı implement etmektense önce base repositoryde implement edilir. 
+
+Abstract baserepository classı açılır. irepositoryden miras alır ve ctrl+. ile metotlar implement edilir.
+
+Singleton PAtternin desteği alınır.
+
+Metotlar düzenlenir.
+
+ConcRep klasörüne baserepository classından miras alacak ilgili classlar oluşturulur.
+
+Ui katmanında tasarım yapılır.
+
+Ui katmanına viewmodels oluşturulur. bunun amacı kullanıcı karşısına direkt entitiesleri çıkarmamaktır.
+
+BLL ve entities katmanı referans alınır. 
+
+CategoryVM sınıfının içine ilgili propertyler oluşturulur. Sorumlulukların ayrılığı prensibi ile entitiese değil buraya metoltar açılır.
+
+ProductVM sınıfı da açılır  ilgili propertiler ve metotlar oluşturulur.
+
+formload eventi açılır ve kategorileri listelemek için metot yazılır.
+
+Category işlemleri yapacağımız için BLL katmanındaki işi yapacak categoryrepository tipinde tanımalama yapılır.
+
+category repository ile işlem yapacak metot tanımlanır ve metot formloada yazılır.
+
+buton eventleri açılır ve doldurulur. detaylar formların içinde mevcut....
+
+Form kodlarından sonra yeni bir class eklenmek isterse ntierde sorunsuz şekjilde diğerleri gibi oluşturulabilir....
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
